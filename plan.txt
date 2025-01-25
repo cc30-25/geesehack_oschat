@@ -1,0 +1,12 @@
+Idea: App that streamlines process of creating instagram-style advertisements for companies and clubs
+
+Voiceflow to interact with user
+Will ask if they need anything else, additional details
+Open AI to format text
+
+User uploads images
+Or ai generated if user allows and doesn't supply photos
+Also stock photos?
+
+The text and photos are given to Canva API
+Pastes in premade templated
