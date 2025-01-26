@@ -203,38 +203,41 @@
 import SwiftUI
 import Speech
 import AVFoundation
+import Foundation
+
 
 struct HomeView: View {
     @State private var userInput: String = ""
     @State private var isRecording: Bool = false
     @State private var recognizedText: String = ""
+    @State private var voiceflowResponse: String = "Waiting for response..."  // New state for API response
     
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
     private let audioEngine = AVAudioEngine()
     @State private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     @State private var recognitionTask: SFSpeechRecognitionTask?
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
+                // Main Text Display
                 Text("What do you want to do?")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                     .padding()
                 
-                // Displaying the recognized speech or the user input
-                Text("Recognized Text: \(recognizedText)")
+                // Display the API response
+                Text("Response: \(voiceflowResponse)")
                     .padding()
                     .foregroundColor(.gray)
-                
-                // TextField for typed input (fallback if speech recognition fails or isn't used)
+
+                // Input TextField
                 TextField("Enter your request...", text: $userInput)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
                 
-                // Microphone button for voice input
-                
+                // Microphone Button for Speech Input
                 Button(action: {
                     if isRecording {
                         stopRecording()
@@ -242,7 +245,6 @@ struct HomeView: View {
                         startRecording()
                     }
                     
-                    // Directly toggle the state property
                     isRecording.toggle()
                 }) {
                     Image(systemName: isRecording ? "mic.slash.fill" : "mic.fill")
@@ -252,9 +254,15 @@ struct HomeView: View {
                 }
                 .padding()
 
-                // Next button for navigation
-                NavigationLink(destination: DetailsView(userInput: userInput)) {
-                    Text("Next")
+                // Send Button to Call Voiceflow API
+                Button(action: {
+                    sendToVoiceflowAPI(message: userInput) { response in
+                        DispatchQueue.main.async {
+                            voiceflowResponse = response ?? "No response received"
+                        }
+                    }
+                }) {
+                    Text("Send to Voiceflow")
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.blue)
